@@ -1,7 +1,8 @@
 import { defineConfig } from 'astro/config'
 
 export default defineConfig({
-  site: 'https://top-coders.vercel.app',
+  site: 'https://top-coders-chi.vercel.app',
   trailingSlash: 'never',
-  build: { format: 'file' },
+  // format 'directory' (el default) sirve /peru desde peru/index.html, que
+  // cualquier host estático resuelve sin configuración extra.
 })
