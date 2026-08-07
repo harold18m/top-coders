@@ -56,6 +56,19 @@ a:hover { color: var(--accent); }
 }
 .brand { font-weight: 700; letter-spacing: -0.02em; font-size: 15px; }
 .brand span { color: var(--accent); }
+.brand em {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 2px 5px;
+  margin-left: 3px;
+  vertical-align: 2px;
+}
 .site-nav { margin-left: auto; display: flex; gap: 18px; font-size: 13.5px; color: var(--muted); }
 .site-nav a[aria-current="page"] { color: var(--text); }
 

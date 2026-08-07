@@ -1,4 +1,4 @@
-# top-coders
+# Top Coders LATAM
 
 Ranking de desarrolladores de América Latina en GitHub. Datos públicos, score
 transparente, sitio estático.

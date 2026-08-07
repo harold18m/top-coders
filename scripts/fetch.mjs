@@ -296,6 +296,35 @@ if (args[0] === '--check') {
   process.exit(0)
 }
 
+// "¿por qué no aparezco?" — calcula el score de un usuario con las mismas
+// fórmulas y dice en qué puesto quedaría del país que se le indique.
+if (args[0] === '--who') {
+  const login = args[1]
+  const slug = args[2]
+  if (!login) throw new Error('uso: --who <login> [pais]')
+  const [raw] = await fetchUsers([login])
+  if (!raw) throw new Error(`no existe el usuario ${login}`)
+  const country = COUNTRIES.find((c) => c.slug === slug) || { slug: slug || '?', name: slug || '?' }
+  const me = shape(raw, country)
+  console.log(`\n${me.name} (@${me.login}) · score ${me.score}`)
+  console.log(`  ★ ${me.stars} · ◎ ${me.followers} seguidores · ${me.commits} commits/año · ${me.prs} PRs`)
+  console.log(`  ${JSON.stringify(me.scores)}`)
+
+  const file = join(ROOT, 'data', `${country.slug}.json`)
+  if (existsSync(file)) {
+    const { users, name } = JSON.parse(readFileSync(file, 'utf8'))
+    const pos = users.filter((u) => u.score > me.score).length + 1
+    const corte = users.at(-1)
+    console.log(
+      pos <= users.length
+        ? `\n  quedaría #${pos} de ${name}`
+        : `\n  fuera del top ${users.length} de ${name} (el último tiene ${corte.score})`
+    )
+    console.log(`  mínimo de seguidores en la lista publicada: ${Math.min(...users.map((u) => u.followers))}`)
+  }
+  process.exit(0)
+}
+
 let targets
 if (args[0] === '--all') {
   targets = COUNTRIES
