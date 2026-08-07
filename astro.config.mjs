@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config'
 
 export default defineConfig({
-  site: 'https://topcoders.dev',
+  site: 'https://top-coders.vercel.app',
   trailingSlash: 'never',
   build: { format: 'file' },
 })
