@@ -63,6 +63,11 @@ se puede comparar entre países.
 Una entrada en `countries.json` y `npm run data -- <slug>`. El campo `q` son los
 términos que se buscan en el `location` del perfil.
 
+## Soporte
+
+Issues: https://github.com/harold18m/top-coders/issues · contacto: harold@dropout.cl
+Ver [SUPPORT.md](SUPPORT.md), incluido cómo pedir que retiremos tu perfil.
+
 ## Límites
 
 Sólo mide actividad pública, y el país sale de un campo de texto libre. Ver
