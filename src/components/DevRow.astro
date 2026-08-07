@@ -1,7 +1,8 @@
 ---
-import { fmt } from '../lib/data.js'
+import { fmt, mainLang } from '../lib/data.js'
 const { user, rank = user.rank, showCountry = false } = Astro.props
 const dims = [user.scores.impact, user.scores.popularity, user.scores.activity, user.scores.collab]
+const lang = mainLang(user)
 ---
 
 <a class="dev" href={`/${user.country}/${user.login}`}>
@@ -13,7 +14,7 @@ const dims = [user.scores.impact, user.scores.popularity, user.scores.activity, 
       <span class="handle">@{user.login}</span>
       {showCountry && user.flag && <span>{user.flag} {user.countryName}</span>}
       {!showCountry && user.company && <span>· {user.company}</span>}
-      {user.langs[0] && <span>· {user.langs[0].name}</span>}
+      {lang && <span>· {lang.name}</span>}
     </span>
   </span>
   <span class="dev-metrics">

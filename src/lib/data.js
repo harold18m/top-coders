@@ -57,6 +57,10 @@ const NOT_A_LANGUAGE = new Set([
   'Nunjucks', 'Mustache', 'Liquid', 'ASP.NET', 'Rich Text Format', 'CSV',
 ])
 
+// El lenguaje que representa a alguien en una fila del ranking: "HTML" como
+// lenguaje principal de un dev dice poco.
+export const mainLang = (u) => u.langs.find((l) => !NOT_A_LANGUAGE.has(l.name)) || u.langs[0]
+
 export function languages() {
   const map = new Map()
   for (const u of allUsers) {
