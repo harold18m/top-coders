@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 // Genera data/<pais>.json con el ranking de devs de GitHub por país.
 //
-//   node scripts/fetch.mjs                 -> todos los países de countries.json
-//   node scripts/fetch.mjs peru chile      -> solo esos slugs
-//   node scripts/fetch.mjs --region LATAM  -> una región
+//   node scripts/fetch.mjs                 -> refresca los países que ya tienen datos
+//   node scripts/fetch.mjs peru chile      -> solo esos slugs (así se agrega uno nuevo)
+//   node scripts/fetch.mjs --region LATAM  -> una región entera de countries.json
+//   node scripts/fetch.mjs --all           -> los 51 países configurados
+//
+// Sin argumentos NO trae países nuevos: agregar un país al sitio es una
+// decisión, no algo que deba pasar solo porque el cron corrió.
 //
 // Token: GITHUB_TOKEN, o `gh auth token` si estás en local.
 
 import { execSync } from 'node:child_process'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -292,11 +296,15 @@ if (args[0] === '--check') {
   process.exit(0)
 }
 
-let targets = COUNTRIES
-if (args[0] === '--region') {
+let targets
+if (args[0] === '--all') {
+  targets = COUNTRIES
+} else if (args[0] === '--region') {
   targets = COUNTRIES.filter((c) => c.region.toLowerCase() === args[1]?.toLowerCase())
 } else if (args.length) {
   targets = COUNTRIES.filter((c) => args.includes(c.slug))
+} else {
+  targets = COUNTRIES.filter((c) => existsSync(join(ROOT, 'data', `${c.slug}.json`)))
 }
 if (!targets.length) {
   console.error('sin países que procesar')

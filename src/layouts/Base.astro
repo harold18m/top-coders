@@ -2,7 +2,7 @@
 import '../styles/global.css'
 import { lastUpdate } from '../lib/data.js'
 
-const { title, description = 'Ranking de desarrolladores en GitHub por país. Datos abiertos, score transparente.' } = Astro.props
+const { title, description = 'Ranking de desarrolladores de América Latina en GitHub. Datos abiertos, score transparente.' } = Astro.props
 const path = Astro.url.pathname
 const updated = lastUpdate ? new Date(lastUpdate).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
 ---
@@ -25,7 +25,7 @@ const updated = lastUpdate ? new Date(lastUpdate).toLocaleDateString('es', { day
         <a class="brand" href="/">top<span>coders</span></a>
         <nav class="site-nav">
           <a href="/" aria-current={path === '/' ? 'page' : undefined}>Países</a>
-          <a href="/global" aria-current={path.startsWith('/global') ? 'page' : undefined}>Global</a>
+          <a href="/global" aria-current={path.startsWith('/global') ? 'page' : undefined}>Top 100</a>
           <a href="/lenguaje" aria-current={path.startsWith('/lenguaje') ? 'page' : undefined}>Lenguajes</a>
           <a href="/metodo" aria-current={path.startsWith('/metodo') ? 'page' : undefined}>Método</a>
         </nav>

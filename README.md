@@ -1,7 +1,13 @@
 # top-coders
 
-Ranking de desarrolladores en GitHub por país. Datos públicos, score transparente,
-sitio estático.
+Ranking de desarrolladores de América Latina en GitHub. Datos públicos, score
+transparente, sitio estático.
+
+En vivo: https://top-coders-chi.vercel.app
+
+Alcance actual: Argentina, Bolivia, Brasil, Chile, Colombia, México y Perú.
+`countries.json` tiene 51 países definidos; el sitio sólo publica los que tienen
+un `data/<slug>.json`, así que ampliar es correr el fetch de un slug nuevo.
 
 Inspirado en [top-coders-peru](https://github.com/joelibaceta/top-coders-peru) de
 Joel Ibaceta, reescrito para funcionar en cualquier país y con vistas que el
@@ -22,7 +28,8 @@ countries.json  →  scripts/fetch.mjs  →  data/<pais>.json  →  Astro  →  
 
 ```bash
 npm install
-npm run data -- peru chile     # o: npm run data:latam, o npm run data (todos)
+npm run data                   # refresca los países ya publicados
+npm run data -- uruguay        # agrega uno nuevo
 npm run dev
 ```
 

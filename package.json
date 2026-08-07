@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "test": "node scripts/fetch.mjs --check",
     "data": "node scripts/fetch.mjs",
-    "data:latam": "node scripts/fetch.mjs --region LATAM"
+    "data:all": "node scripts/fetch.mjs --all"
   },
   "devDependencies": {
     "astro": "^5.14.1"
