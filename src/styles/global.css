@@ -298,7 +298,7 @@ section { margin: 46px 0; }
 
 .langbar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 12px; background: var(--line); }
 .langlist { display: flex; flex-direction: column; gap: 7px; font-size: 12.5px; }
-.langlist a { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.langlist a, .langlist > div { display: flex; align-items: center; gap: 8px; color: var(--muted); }
 .langlist a:hover { color: var(--text); }
 .langlist .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 .langlist .n { margin-left: auto; font-family: var(--mono); color: var(--dim); }

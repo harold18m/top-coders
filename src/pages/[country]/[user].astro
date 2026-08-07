@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro'
-import { countries, globalTop, langSlug, fmt } from '../../lib/data.js'
+import { countries, globalTop, langSlug, langPages, fmt } from '../../lib/data.js'
 
 export function getStaticPaths() {
   return countries.flatMap((c) =>
@@ -80,13 +80,17 @@ const near = c.users.filter((o) => Math.abs(o.rank - u.rank) <= 2 && o.login !==
             ))}
           </div>
           <div class="langlist">
-            {u.langs.map((l) => (
-              <a href={`/lenguaje/${langSlug(l.name)}`}>
-                <span class="dot" style={`background:${l.color || '#555'}`}></span>
-                {l.name}
-                <span class="n">{fmt(l.stars)} ★</span>
-              </a>
-            ))}
+            {u.langs.map((l) => {
+              const has = langPages.has(langSlug(l.name))
+              const Tag = has ? 'a' : 'div'
+              return (
+                <Tag href={has ? `/lenguaje/${langSlug(l.name)}` : undefined}>
+                  <span class="dot" style={`background:${l.color || '#555'}`}></span>
+                  {l.name}
+                  <span class="n">{fmt(l.stars)} ★</span>
+                </Tag>
+              )
+            })}
           </div>
         </div>
       )}

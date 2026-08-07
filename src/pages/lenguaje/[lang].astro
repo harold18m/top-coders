@@ -5,7 +5,6 @@ import { languages, fmt } from '../../lib/data.js'
 
 export function getStaticPaths() {
   return languages()
-    .filter((l) => l.devs.length >= 3)
     .map((l) => ({ params: { lang: l.slug }, props: { l } }))
 }
 

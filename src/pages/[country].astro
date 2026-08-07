@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import DevRow from '../components/DevRow.astro'
-import { countries, countryStats, langSlug, fmt } from '../lib/data.js'
+import { countries, countryStats, langSlug, langPages, fmt } from '../lib/data.js'
 
 export function getStaticPaths() {
   return countries.map((c) => ({ params: { country: c.slug }, props: { c } }))
@@ -17,6 +17,7 @@ const topLangs = [...c.users.flatMap((u) => u.langs).reduce((m, l) => {
   cur.devs += 1
   return m.set(l.name, cur)
 }, new Map()).values()]
+  .filter((l) => langPages.has(langSlug(l.name)))
   .sort((a, b) => b.devs - a.devs || b.stars - a.stars)
   .slice(0, 8)
 ---
