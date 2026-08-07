@@ -1,0 +1,30 @@
+---
+import { fmt } from '../lib/data.js'
+const { user, rank = user.rank, showCountry = false } = Astro.props
+const dims = [user.scores.impact, user.scores.popularity, user.scores.activity, user.scores.collab]
+---
+
+<a class="dev" href={`/${user.country}/${user.login}`}>
+  <span class="dev-rank">{rank}</span>
+  <img class="dev-avatar" src={`${user.avatar}&s=80`} alt="" loading="lazy" width="40" height="40" />
+  <span class="dev-id">
+    <span class="dev-name">{user.name}</span>
+    <span class="dev-sub">
+      <span class="handle">@{user.login}</span>
+      {showCountry && user.flag && <span>{user.flag} {user.countryName}</span>}
+      {!showCountry && user.company && <span>· {user.company}</span>}
+      {user.langs[0] && <span>· {user.langs[0].name}</span>}
+    </span>
+  </span>
+  <span class="dev-metrics">
+    <span><i>★</i>{fmt(user.stars)}</span>
+    <span><i>◎</i>{fmt(user.followers)}</span>
+    <span><i>⎇</i>{fmt(user.prs)}</span>
+  </span>
+  <span class="dev-score">
+    <span class="spark" aria-hidden="true">
+      {dims.map((d) => <i style={`height:${Math.max(6, d * 0.26)}px`}></i>)}
+    </span>
+    <b>{user.score.toFixed(1)}</b>
+  </span>
+</a>

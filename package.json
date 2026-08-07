@@ -1,0 +1,17 @@
+{
+  "name": "top-coders",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node scripts/fetch.mjs --check",
+    "data": "node scripts/fetch.mjs",
+    "data:latam": "node scripts/fetch.mjs --region LATAM"
+  },
+  "devDependencies": {
+    "astro": "^5.14.1"
+  }
+}

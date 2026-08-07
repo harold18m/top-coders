@@ -1,0 +1,48 @@
+---
+import '../styles/global.css'
+import { lastUpdate } from '../lib/data.js'
+
+const { title, description = 'Ranking de desarrolladores en GitHub por país. Datos abiertos, score transparente.' } = Astro.props
+const path = Astro.url.pathname
+const updated = lastUpdate ? new Date(lastUpdate).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>" />
+  </head>
+  <body>
+    <header class="site-head">
+      <div class="wrap">
+        <a class="brand" href="/">top<span>coders</span></a>
+        <nav class="site-nav">
+          <a href="/" aria-current={path === '/' ? 'page' : undefined}>Países</a>
+          <a href="/global" aria-current={path.startsWith('/global') ? 'page' : undefined}>Global</a>
+          <a href="/lenguaje" aria-current={path.startsWith('/lenguaje') ? 'page' : undefined}>Lenguajes</a>
+          <a href="/metodo" aria-current={path.startsWith('/metodo') ? 'page' : undefined}>Método</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <slot />
+    </main>
+
+    <footer class="site-foot">
+      <div class="wrap">
+        <span>Datos públicos de la API de GitHub · código abierto</span>
+        <a href="https://github.com/haroldmedrano/top-coders">Repo</a>
+        <a href="/metodo">Cómo se calcula</a>
+        <span class="right">actualizado {updated}</span>
+      </div>
+    </footer>
+  </body>
+</html>

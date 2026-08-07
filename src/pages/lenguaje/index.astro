@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro'
+import { languages, fmt } from '../../lib/data.js'
+
+const langs = languages().filter((l) => l.devs.length >= 3)
+---
+
+<Base
+  title="Ranking por lenguaje — Top Coders"
+  description="Quién tiene más impacto en Python, TypeScript, Go, Rust y el resto, país por país."
+>
+  <section class="hero" style="padding-bottom:20px">
+    <h1>Ranking por <em>lenguaje</em></h1>
+    <p>
+      El mismo ranking, filtrado por el lenguaje principal de los repos de cada
+      dev y ordenado por estrellas acumuladas en ese lenguaje.
+    </p>
+  </section>
+
+  <section>
+    <table class="ranktable">
+      <thead>
+        <tr>
+          <th>Lenguaje</th>
+          <th>Devs</th>
+          <th>★ estrellas</th>
+          <th>Top</th>
+        </tr>
+      </thead>
+      <tbody>
+        {langs.map((l) => (
+          <tr>
+            <td>
+              <a href={`/lenguaje/${l.slug}`}>
+                <span class="dot" style={`display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px;background:${l.color || '#666'}`}></span>
+                {l.name}
+              </a>
+            </td>
+            <td>{l.devs.length}</td>
+            <td>{fmt(l.stars)}</td>
+            <td>
+              <span class="faces">
+                {l.devs.slice(0, 4).map((u) => (
+                  <a href={`/${u.country}/${u.login}`} title={u.name}>
+                    <img src={`${u.avatar}&s=48`} alt={u.name} loading="lazy" width="24" height="24" />
+                  </a>
+                ))}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+</Base>

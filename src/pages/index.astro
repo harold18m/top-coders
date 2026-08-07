@@ -1,0 +1,79 @@
+---
+import Base from '../layouts/Base.astro'
+import DevRow from '../components/DevRow.astro'
+import { countries, countryStats, globalTop, allUsers, fmt } from '../lib/data.js'
+
+const ranked = countries
+  .map((c) => ({ ...c, stats: countryStats(c) }))
+  .sort((a, b) => b.stats.avgTop10 - a.stats.avgTop10)
+
+const totalStars = allUsers.reduce((a, u) => a + u.stars, 0)
+const totalCommits = allUsers.reduce((a, u) => a + u.commits, 0)
+---
+
+<Base title="Top Coders — ranking de desarrolladores en GitHub por país">
+  <section class="hero">
+    <h1>Quién construye <em>open source</em><br />en cada país.</h1>
+    <p>
+      Ranking de desarrolladores por impacto real en GitHub: estrellas, seguidores,
+      commits del último año y pull requests mergeados. Sin votaciones, sin listas
+      de LinkedIn — sólo datos públicos y una fórmula que puedes auditar.
+    </p>
+    <div class="stat-strip">
+      <div><b>{countries.length}</b><small>países</small></div>
+      <div><b>{fmt(allUsers.length)}</b><small>devs rankeados</small></div>
+      <div><b>{fmt(totalStars)}</b><small>estrellas sumadas</small></div>
+      <div><b>{fmt(totalCommits)}</b><small>commits el último año</small></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Países</h2>
+      <p>ordenados por score promedio de su top 10</p>
+    </div>
+    <table class="ranktable">
+      <thead>
+        <tr>
+          <th>País</th>
+          <th>Score top 10</th>
+          <th>★ estrellas</th>
+          <th>Commits/año</th>
+          <th>PRs</th>
+          <th>Top devs</th>
+        </tr>
+      </thead>
+      <tbody>
+        {ranked.map((c) => (
+          <tr>
+            <td><a href={`/${c.slug}`}><span class="flag">{c.flag}</span>{c.name}</a></td>
+            <td style="color:var(--text)">{c.stats.avgTop10.toFixed(1)}</td>
+            <td>{fmt(c.stats.stars)}</td>
+            <td>{fmt(c.stats.commits)}</td>
+            <td>{fmt(c.stats.prs)}</td>
+            <td>
+              <span class="faces">
+                {c.stats.faces.map((u) => (
+                  <a href={`/${c.slug}/${u.login}`} title={u.name}>
+                    <img src={`${u.avatar}&s=48`} alt={u.name} loading="lazy" width="24" height="24" />
+                  </a>
+                ))}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Top global</h2>
+      <p>los 15 con mayor score entre todos los países</p>
+      <a href="/global">ver los 100 →</a>
+    </div>
+    <div class="devs">
+      {globalTop.slice(0, 15).map((u, i) => <DevRow user={u} rank={i + 1} showCountry />)}
+    </div>
+  </section>
+</Base>

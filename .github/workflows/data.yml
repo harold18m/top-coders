@@ -1,0 +1,40 @@
+name: Actualizar ranking
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # lunes 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      region:
+        description: 'Región a refrescar (vacío = todas)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1 # el rate limit de GitHub es por token, no por job
+      matrix:
+        region: [LATAM, Europa, Norteamérica, Asia, África, Oceanía]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Traer datos
+        # GH_PAT (token clásico, sin scopes) da 5000 req/h contra 1000 del
+        # GITHUB_TOKEN por defecto. Sin él la corrida global no alcanza.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: node scripts/fetch.mjs --region "${{ matrix.region }}"
+      - name: Commitear cambios
+        run: |
+          git config user.name 'top-coders bot'
+          git config user.email 'bot@users.noreply.github.com'
+          git pull --rebase
+          git add data/
+          git diff --staged --quiet || git commit -m "data: ${{ matrix.region }} $(date -u +%Y-%m-%d)"
+          git push

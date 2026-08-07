@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro'
+import { countries } from '../lib/data.js'
+
+const DIMS = [
+  ['Impacto', '35%', 'Estrellas sumadas de sus repos públicos propios (no forks).'],
+  ['Popularidad', '25%', 'Seguidores en GitHub.'],
+  ['Actividad', '20%', 'Commits del último año, públicos y privados agregados.'],
+  ['Colaboración', '20%', 'Pull requests mergeados que el dev creó, en cualquier repo público.'],
+]
+---
+
+<Base title="Cómo se calcula el ranking — Top Coders" description="La fórmula completa, sus límites y cómo corregir tu perfil.">
+  <section class="hero" style="padding-bottom:20px">
+    <h1>Cómo se calcula<br /><em>el score</em></h1>
+    <p>Sin caja negra: la fórmula está en <code>scripts/fetch.mjs</code> y los datos crudos en <code>data/*.json</code>.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Las cuatro dimensiones</h2></div>
+    <table class="ranktable">
+      <thead><tr><th>Dimensión</th><th>Peso</th><th style="text-align:left">Qué mide</th></tr></thead>
+      <tbody>
+        {DIMS.map(([name, w, desc]) => (
+          <tr>
+            <td>{name}</td>
+            <td>{w}</td>
+            <td style="text-align:left;font-family:var(--sans)">{desc}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>La normalización</h2></div>
+    <p class="note">
+      Cada dimensión se lleva a 0–100 con <code>log10(1 + valor) / log10(1 + referencia)</code>,
+      con referencias fijas: 50.000 estrellas, 20.000 seguidores, 4.000 commits al año y
+      1.000 PRs mergeados. La escala logarítmica evita que un solo outlier aplaste a todos,
+      y que las referencias sean constantes hace que el score signifique lo mismo en cualquier
+      país y en cualquier corrida. El score final es el promedio ponderado × 100.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Límites conocidos</h2></div>
+    <p class="note">
+      · El país sale del campo <code>location</code> del perfil, que es texto libre. Si no lo
+      llenaste, no apareces; si pusiste dos países, puedes aparecer en ambos.<br />
+      · Se analizan hasta 200 perfiles por país (los de más seguidores) y se publican los 100
+      con mejor score. Alguien con pocos seguidores y mucho impacto puede quedar fuera del corte inicial.<br />
+      · Las estrellas suman los 30 repos más estrellados de cada dev; la cola larga no mueve el resultado.<br />
+      · Sólo cuenta actividad pública. El trabajo en repos privados es invisible para este ranking,
+      y eso deja fuera a muchísima gente buena. Esto mide presencia open source, no talento.<br />
+      · Las organizaciones y cuentas bot quedan excluidas por el tipo de cuenta.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Corregir tu perfil</h2></div>
+    <p class="note">
+      El ranking se regenera desde la API de GitHub, así que lo que cambies en tu perfil se
+      refleja en la siguiente corrida. Si crees que hay un error, abre un issue en el repo.
+      Países con datos hoy: {countries.map((c) => c.flag).join(' ')}
+    </p>
+  </section>
+</Base>

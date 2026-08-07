@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro'
+import DevRow from '../components/DevRow.astro'
+import { countries, countryStats, langSlug, fmt } from '../lib/data.js'
+
+export function getStaticPaths() {
+  return countries.map((c) => ({ params: { country: c.slug }, props: { c } }))
+}
+
+const { c } = Astro.props
+const stats = countryStats(c)
+const others = countries.filter((o) => o.slug !== c.slug && o.region === c.region).slice(0, 12)
+
+const topLangs = [...c.users.flatMap((u) => u.langs).reduce((m, l) => {
+  const cur = m.get(l.name) || { ...l, stars: 0, devs: 0 }
+  cur.stars += l.stars
+  cur.devs += 1
+  return m.set(l.name, cur)
+}, new Map()).values()]
+  .sort((a, b) => b.devs - a.devs || b.stars - a.stars)
+  .slice(0, 8)
+---
+
+<Base
+  title={`Top Coders ${c.name} — mejores desarrolladores de GitHub`}
+  description={`Los ${c.users.length} desarrolladores de ${c.name} con mayor impacto open source en GitHub.`}
+>
+  <section class="hero" style="padding-bottom:20px">
+    <h1><span style="margin-right:12px">{c.flag}</span>Top coders<br /><em>{c.name}</em></h1>
+    <p>
+      {c.users.length} desarrolladores rankeados sobre {c.candidates} perfiles públicos
+      con ubicación en {c.name}.
+    </p>
+    <div class="stat-strip">
+      <div><b>{stats.avgTop10.toFixed(1)}</b><small>score top 10</small></div>
+      <div><b>{fmt(stats.stars)}</b><small>estrellas</small></div>
+      <div><b>{fmt(stats.commits)}</b><small>commits/año</small></div>
+      <div><b>{fmt(stats.prs)}</b><small>PRs mergeados</small></div>
+      <div><b>{fmt(stats.followers)}</b><small>seguidores</small></div>
+    </div>
+  </section>
+
+  {topLangs.length > 0 && (
+    <section>
+      <div class="sec-head">
+        <h2>Lenguajes</h2>
+        <p>los más usados por el top de {c.name}</p>
+      </div>
+      <div class="chips">
+        {topLangs.map((l) => (
+          <a class="chip" href={`/lenguaje/${langSlug(l.name)}`}>
+            <span class="dot" style={`display:inline-block;width:8px;height:8px;border-radius:50%;background:${l.color || '#666'}`}></span>
+            <b>{l.name}</b>
+            <small>{l.devs} devs</small>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section>
+    <div class="sec-head">
+      <h2>Ranking</h2>
+      <p>score 0–100 · impacto, popularidad, actividad y colaboración</p>
+    </div>
+    <div class="devs">
+      {c.users.map((u) => <DevRow user={{ ...u, flag: c.flag, countryName: c.name }} />)}
+    </div>
+  </section>
+
+  {others.length > 0 && (
+    <section>
+      <div class="sec-head"><h2>Más de {c.region}</h2></div>
+      <div class="chips">
+        {others.map((o) => (
+          <a class="chip" href={`/${o.slug}`}>{o.flag} <b>{o.name}</b></a>
+        ))}
+      </div>
+    </section>
+  )}
+</Base>

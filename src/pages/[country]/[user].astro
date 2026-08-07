@@ -1,0 +1,121 @@
+---
+import Base from '../../layouts/Base.astro'
+import { countries, globalTop, langSlug, fmt } from '../../lib/data.js'
+
+export function getStaticPaths() {
+  return countries.flatMap((c) =>
+    c.users.map((u) => ({ params: { country: c.slug, user: u.login }, props: { u, c } }))
+  )
+}
+
+const { u, c } = Astro.props
+const globalRank = globalTop.findIndex((g) => g.login === u.login && g.country === u.country) + 1
+
+const DIMS = [
+  { key: 'impact', label: 'Impacto', hint: `${fmt(u.stars)} estrellas` },
+  { key: 'popularity', label: 'Popularidad', hint: `${fmt(u.followers)} seguidores` },
+  { key: 'activity', label: 'Actividad', hint: `${fmt(u.commits)} commits/año` },
+  { key: 'collab', label: 'Colaboración', hint: `${fmt(u.prs)} PRs mergeados` },
+]
+
+const langTotal = u.langs.reduce((a, l) => a + l.repos, 0) || 1
+const near = c.users.filter((o) => Math.abs(o.rank - u.rank) <= 2 && o.login !== u.login)
+---
+
+<Base
+  title={`${u.name} (@${u.login}) — Top Coders ${c.name}`}
+  description={`#${u.rank} en el ranking de desarrolladores de ${c.name} en GitHub. Score ${u.score}.`}
+>
+  <div class="profile">
+    <div>
+      <div class="profile-head">
+        <img src={`${u.avatar}&s=200`} alt={u.name} width="84" height="84" />
+        <div>
+          <h1>{u.name}</h1>
+          <a class="handle" href={`https://github.com/${u.login}`}>@{u.login}</a>
+          {u.bio && <p>{u.bio}</p>}
+        </div>
+      </div>
+
+      <div class="bigscore">
+        <b>{u.score.toFixed(1)}</b>
+        <span>score global</span>
+        <span class="rank-badge">
+          <b>#{u.rank}</b> en {c.flag} {c.name}<br />
+          <small style="color:var(--dim)">#{globalRank} entre todos los países</small>
+        </span>
+      </div>
+
+      <div class="dims">
+        {DIMS.map((d) => (
+          <div class="dim">
+            <span>{d.label}</span>
+            <span class="bar"><i style={`width:${u.scores[d.key]}%`}></i></span>
+            <span class="val">{u.scores[d.key].toFixed(0)} · {d.hint}</span>
+          </div>
+        ))}
+      </div>
+
+      {u.topRepos.length > 0 && (
+        <div class="card" style="margin-top:26px">
+          <h3>Repos con más estrellas</h3>
+          {u.topRepos.map((r) => (
+            <a class="repo" href={r.url}>
+              <span class="stars">★ {fmt(r.stars)}</span>
+              <b>{r.name}</b>
+              {r.desc && <small>{r.desc}</small>}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <aside>
+      {u.langs.length > 0 && (
+        <div class="card">
+          <h3>Lenguajes</h3>
+          <div class="langbar">
+            {u.langs.map((l) => (
+              <i style={`width:${(l.repos / langTotal) * 100}%;background:${l.color || '#555'}`}></i>
+            ))}
+          </div>
+          <div class="langlist">
+            {u.langs.map((l) => (
+              <a href={`/lenguaje/${langSlug(l.name)}`}>
+                <span class="dot" style={`background:${l.color || '#555'}`}></span>
+                {l.name}
+                <span class="n">{fmt(l.stars)} ★</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div class="card">
+        <h3>Perfil</h3>
+        <div class="langlist">
+          {u.company && <div style="color:var(--muted)">🏢 {u.company}</div>}
+          {u.location && <div style="color:var(--muted)">📍 {u.location}</div>}
+          <div style="color:var(--muted)">📦 {u.repos} repos públicos</div>
+          <div style="color:var(--muted)">🗓 en GitHub desde {u.since}</div>
+          {u.website && <a href={u.website.startsWith('http') ? u.website : `https://${u.website}`}>🔗 {u.website.replace(/^https?:\/\//, '')}</a>}
+        </div>
+      </div>
+
+      {near.length > 0 && (
+        <div class="card">
+          <h3>Cerca en el ranking</h3>
+          <div class="langlist">
+            {near.map((o) => (
+              <a href={`/${c.slug}/${o.login}`}>
+                <img src={`${o.avatar}&s=40`} alt="" width="20" height="20" style="border-radius:50%" />
+                {o.name}
+                <span class="n">{o.score.toFixed(1)}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </aside>
+  </div>
+</Base>
