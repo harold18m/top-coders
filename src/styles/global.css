@@ -111,6 +111,38 @@ section { margin: 46px 0; }
 .sec-head p { margin: 0; color: var(--dim); font-size: 13px; }
 .sec-head a { margin-left: auto; font-size: 13px; color: var(--muted); }
 
+/* ---------- buscador y filtro del ranking ---------- */
+
+.rank-tools { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+
+.rank-search,
+.rank-lang {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  padding: 9px 12px;
+}
+.rank-search { flex: 1; min-width: 200px; }
+.rank-search::placeholder { color: var(--dim); }
+.rank-search:focus,
+.rank-lang:focus { outline: none; border-color: var(--accent-2); }
+.rank-lang { cursor: pointer; max-width: 220px; }
+
+.rank-count {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-empty { color: var(--muted); font-size: 14px; padding: 24px 10px; margin: 0; }
+
+/* .dev es grid, así que el display del atributo hidden no alcanza. */
+.dev[hidden] { display: none; }
+
 /* ---------- lista de devs ---------- */
 
 .devs { display: flex; flex-direction: column; border-top: 1px solid var(--line-soft); }

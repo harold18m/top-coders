@@ -1,0 +1,64 @@
+---
+import { mainLang, langSlug } from '../lib/data.js'
+const { users } = Astro.props
+
+// El select ofrece el lenguaje principal de cada fila, el mismo que se ve en la
+// lista. Filtrar por "cualquier lenguaje que haya tocado" metería a casi todos
+// bajo JavaScript y el filtro no separaría nada.
+const langs = [...users.reduce((m, u) => {
+  const l = mainLang(u)
+  if (!l) return m
+  const cur = m.get(l.name) || { name: l.name, slug: langSlug(l.name), devs: 0 }
+  cur.devs += 1
+  return m.set(l.name, cur)
+}, new Map()).values()].sort((a, b) => b.devs - a.devs || a.name.localeCompare(b.name))
+---
+
+<div class="rank-tools">
+  <input
+    class="rank-search"
+    type="search"
+    placeholder="Buscar nombre, usuario o empresa"
+    aria-label="Buscar en el ranking"
+    autocomplete="off"
+  />
+  <select class="rank-lang" aria-label="Filtrar por lenguaje principal">
+    <option value="">Todos los lenguajes</option>
+    {langs.map((l) => <option value={l.slug}>{l.name} · {l.devs}</option>)}
+  </select>
+  <span class="rank-count" aria-live="polite"></span>
+</div>
+<p class="rank-empty" hidden>Nadie coincide con esa búsqueda.</p>
+
+<script>
+  for (const tools of document.querySelectorAll('.rank-tools')) {
+    const scope = tools.parentElement
+    const list = scope.querySelector('.devs')
+    if (!list) continue
+
+    const empty = scope.querySelector('.rank-empty')
+    const count = tools.querySelector('.rank-count')
+    const search = tools.querySelector('.rank-search')
+    const select = tools.querySelector('.rank-lang')
+    const rows = [...list.querySelectorAll('.dev')]
+
+    const apply = () => {
+      const q = search.value.trim().toLowerCase()
+      const lang = select.value
+      let shown = 0
+      for (const row of rows) {
+        const ok = (!q || row.dataset.q.includes(q)) && (!lang || row.dataset.lang === lang)
+        row.hidden = !ok
+        if (ok) shown++
+      }
+      count.textContent = q || lang ? `${shown} de ${rows.length}` : ''
+      empty.hidden = shown > 0
+    }
+
+    search.addEventListener('input', apply)
+    select.addEventListener('change', apply)
+    // El navegador restaura los valores al volver atrás; sin esto la lista
+    // quedaría completa con el filtro puesto.
+    apply()
+  }
+</script>

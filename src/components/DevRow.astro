@@ -1,11 +1,16 @@
 ---
-import { fmt, mainLang } from '../lib/data.js'
+import { fmt, mainLang, langSlug } from '../lib/data.js'
 const { user, rank = user.rank, showCountry = false } = Astro.props
 const dims = [user.scores.impact, user.scores.popularity, user.scores.activity, user.scores.collab]
 const lang = mainLang(user)
 ---
 
-<a class="dev" href={`/${user.country}/${user.login}`}>
+<a
+  class="dev"
+  href={`/${user.country}/${user.login}`}
+  data-q={`${user.name || ''} ${user.login} ${user.company || ''}`.toLowerCase()}
+  data-lang={lang ? langSlug(lang.name) : ''}
+>
   <span class="dev-rank">{rank}</span>
   <img class="dev-avatar" src={`${user.avatar}&s=80`} alt="" loading="lazy" width="40" height="40" />
   <span class="dev-id">

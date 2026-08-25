@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import DevRow from '../components/DevRow.astro'
+import RankFilter from '../components/RankFilter.astro'
 import { countries, countryStats, langSlug, langPages, fmt } from '../lib/data.js'
 
 export function getStaticPaths() {
@@ -64,6 +65,7 @@ const topLangs = [...c.users.flatMap((u) => u.langs).reduce((m, l) => {
       <h2>Ranking</h2>
       <p>score 0–100 · impacto, popularidad, actividad y colaboración</p>
     </div>
+    <RankFilter users={c.users} />
     <div class="devs">
       {c.users.map((u) => <DevRow user={{ ...u, flag: c.flag, countryName: c.name }} />)}
     </div>

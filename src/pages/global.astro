@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import DevRow from '../components/DevRow.astro'
+import RankFilter from '../components/RankFilter.astro'
 import { globalTop, countries, fmt, allUsers } from '../lib/data.js'
 
 const top = globalTop.slice(0, 100)
@@ -26,6 +27,7 @@ const represented = new Set(top.map((u) => u.country)).size
   </section>
 
   <section>
+    <RankFilter users={top} />
     <div class="devs">
       {top.map((u, i) => <DevRow user={u} rank={i + 1} showCountry />)}
     </div>
