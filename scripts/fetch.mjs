@@ -25,7 +25,7 @@ const TOKEN =
 
 // Cuántos candidatos traer por país antes de puntuar. El search de GitHub
 // pagina de a 100 y corta en 1000, así que esto es como máximo 10 páginas.
-const POOL = Number(process.env.POOL || 200)
+const POOL = Number(process.env.POOL || 300)
 // Cuántos guardamos por país.
 const KEEP = Number(process.env.KEEP || 100)
 // Filtro de entrada: sin esto el pool se llena de cuentas vacías.
@@ -88,21 +88,29 @@ async function graphql(query, tries = 0) {
 
 // --- candidatos --------------------------------------------------------
 
+// Dos ordenamientos con cuota propia. Buscar solo por seguidores dejaba fuera
+// a quien construye mucho sin alcance social — justo el perfil que el score
+// premia por actividad y PRs, descartado antes de ser puntuado.
+const SORTS = ['followers', 'repositories']
+
 async function findLogins(country) {
   const seen = new Map()
-  for (const term of country.q) {
-    for (let page = 1; page <= 3 && seen.size < POOL; page++) {
-      const q = encodeURIComponent(
-        `location:"${term}" followers:>${MIN_FOLLOWERS} repos:>${MIN_REPOS} type:user`
-      )
-      const data = await gh(
-        `https://api.github.com/search/users?q=${q}&per_page=100&page=${page}&sort=followers&order=desc`
-      )
-      for (const u of data.items || []) seen.set(u.login, true)
-      if ((data.items || []).length < 100) break
-      await sleep(2200) // search: 30 req/min
+  for (const sort of SORTS) {
+    const target = Math.min(POOL, seen.size + Math.ceil(POOL / SORTS.length))
+    for (const term of country.q) {
+      for (let page = 1; page <= 3 && seen.size < target; page++) {
+        const q = encodeURIComponent(
+          `location:"${term}" followers:>${MIN_FOLLOWERS} repos:>${MIN_REPOS} type:user`
+        )
+        const data = await gh(
+          `https://api.github.com/search/users?q=${q}&per_page=100&page=${page}&sort=${sort}&order=desc`
+        )
+        for (const u of data.items || []) seen.set(u.login, true)
+        if ((data.items || []).length < 100) break
+        await sleep(2200) // search: 30 req/min
+      }
+      if (seen.size >= target) break
     }
-    if (seen.size >= POOL) break
   }
   return [...seen.keys()].slice(0, POOL)
 }
