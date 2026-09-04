@@ -1,0 +1,93 @@
+---
+import { countries, countryStats, fmt } from '../lib/data.js'
+
+// Centroide aproximado de cada país (lon, lat). Sólo lo usa el mapa, así que
+// vive acá y no en countries.json.
+const COORD = {
+  argentina: [-64.0, -34.5], bolivia: [-64.7, -16.3], brasil: [-51.9, -12.0],
+  chile: [-71.0, -33.5], colombia: [-73.5, 4.6], 'costa-rica': [-84.1, 9.9],
+  cuba: [-79.5, 21.9], ecuador: [-78.5, -1.4], 'el-salvador': [-88.9, 13.7],
+  guatemala: [-90.5, 15.0], honduras: [-86.9, 14.7], mexico: [-102.5, 23.6],
+  nicaragua: [-85.2, 12.9], panama: [-80.0, 8.6], paraguay: [-58.4, -23.4],
+  peru: [-75.0, -9.2], 'puerto-rico': [-66.5, 18.2],
+  'republica-dominicana': [-70.2, 18.7], uruguay: [-56.0, -32.8],
+  venezuela: [-66.6, 7.4],
+  espana: [-3.7, 40.4], portugal: [-8.2, 39.5], 'reino-unido': [-2.0, 54.0],
+  alemania: [10.4, 51.2], francia: [2.2, 46.6], italia: [12.6, 42.5],
+  'paises-bajos': [5.3, 52.1], suiza: [8.2, 46.8], suecia: [15.6, 62.2],
+  polonia: [19.1, 52.0], ucrania: [31.2, 48.4], rusia: [37.6, 55.8],
+  turquia: [35.2, 39.0],
+  'estados-unidos': [-98.5, 39.8], canada: [-96.8, 53.0],
+  india: [78.9, 21.0], china: [104.2, 35.9], japon: [138.3, 36.2],
+  'corea-del-sur': [127.8, 36.5], singapur: [103.8, 1.35],
+  indonesia: [113.9, -2.5], vietnam: [108.3, 14.1], filipinas: [121.8, 12.9],
+  pakistan: [69.3, 30.4], israel: [34.9, 31.0],
+  nigeria: [8.7, 9.1], kenia: [37.9, 0.0], sudafrica: [24.7, -29.0],
+  egipto: [30.8, 26.8],
+  australia: [133.8, -25.3], 'nueva-zelanda': [174.0, -41.0],
+}
+
+const puntos = countries
+  .filter((c) => COORD[c.slug])
+  .map((c) => {
+    const s = countryStats(c)
+    return {
+      slug: c.slug,
+      name: c.name,
+      flag: c.flag,
+      ll: COORD[c.slug],
+      stars: s.stars,
+      starsFmt: fmt(s.stars),
+      devs: s.devs,
+      score: s.avgTop10.toFixed(1),
+    }
+  })
+---
+
+<div class="mapa" id="mapa-paises" data-puntos={JSON.stringify(puntos)}></div>
+
+<!--
+  maplibre va por CDN y no como dependencia npm: parsea las tiles en un Web Worker
+  que busca como archivo hermano de su propio módulo, y al bundlearlo ese hermano
+  desaparece — el mapa carga el estilo y no llega a pedir una sola tile.
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@6.7.0/dist/maplibre-gl.css" />
+
+<script type="module" is:inline>
+  import { Map, Marker, NavigationControl, LngLatBounds } from 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.7.0/dist/maplibre-gl.mjs'
+
+  const el = document.getElementById('mapa-paises')
+  const puntos = JSON.parse(el.dataset.puntos)
+
+  const map = new Map({
+    container: el,
+    // nolabels: los nombres de país del mapa base compiten con las etiquetas de los marcadores.
+    style: 'https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json',
+    // Sin esto la rueda del mouse secuestra el scroll de la página al pasar por encima.
+    cooperativeGestures: true,
+    attributionControl: { compact: true },
+  })
+  map.on('error', (e) => console.error('[mapa]', e.error?.message || e))
+  map.addControl(new NavigationControl({ showCompass: false }), 'top-right')
+
+  const maxStars = Math.max(...puntos.map((p) => p.stars), 1)
+
+  // De mayor a menor: maplibre apila por orden de inserción, así los países
+  // chicos quedan encima y su etiqueta no desaparece bajo la de un vecino grande.
+  for (const p of [...puntos].sort((a, b) => b.stars - a.stars)) {
+    // Diámetro por raíz cuadrada: el área del círculo queda proporcional a las estrellas.
+    const d = 26 + 32 * Math.sqrt(p.stars / maxStars)
+    const a = document.createElement('a')
+    a.className = 'mk'
+    a.href = '/' + p.slug
+    a.style.setProperty('--d', d.toFixed(1) + 'px')
+    a.setAttribute('aria-label', `${p.name}: ${p.devs} devs, ${p.starsFmt} estrellas, score ${p.score}`)
+    a.innerHTML =
+      `<span class="mk-dot">${p.flag}</span>` +
+      `<span class="mk-lbl">${p.name} <b>★ ${p.starsFmt}</b></span>`
+    new Marker({ element: a }).setLngLat(p.ll).addTo(map)
+  }
+
+  const bounds = puntos.reduce((b, p) => b.extend(p.ll), new LngLatBounds())
+  map.fitBounds(bounds, { padding: 44, maxZoom: 5, animate: false })
+</script>

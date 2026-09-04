@@ -367,3 +367,70 @@ section { margin: 46px 0; }
 
 .note { color: var(--dim); font-size: 12.5px; line-height: 1.7; }
 .note code { font-family: var(--mono); color: var(--muted); }
+
+/* ---------- mapa ---------- */
+
+.mapa {
+  height: 560px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.mapa .maplibregl-ctrl-group {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+.mapa .maplibregl-ctrl-group button + button { border-top-color: var(--line); }
+.mapa .maplibregl-ctrl-icon { filter: invert(1) opacity(0.65); }
+.mapa .maplibregl-ctrl-attrib { background: color-mix(in srgb, var(--bg) 80%, transparent); }
+.mapa .maplibregl-ctrl-attrib a { color: var(--dim); }
+
+.mk {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+.mk-dot {
+  width: var(--d);
+  height: var(--d);
+  display: grid;
+  place-items: center;
+  font-size: calc(var(--d) * 0.46);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 7%, transparent);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.mk:hover {
+  z-index: 10;
+}
+.mk:hover .mk-dot {
+  transform: scale(1.12);
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.mk-lbl {
+  pointer-events: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.mk-lbl b {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .mapa { height: 380px; }
+  .mk-lbl { display: none; }
+}

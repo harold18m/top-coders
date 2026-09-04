@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro'
 import DevRow from '../components/DevRow.astro'
+import MapaPaises from '../components/MapaPaises.astro'
 import { countries, countryStats, globalTop, allUsers, fmt } from '../lib/data.js'
 
 const ranked = countries
@@ -25,6 +26,14 @@ const totalCommits = allUsers.reduce((a, u) => a + u.commits, 0)
       <div><b>{fmt(totalStars)}</b><small>estrellas sumadas</small></div>
       <div><b>{fmt(totalCommits)}</b><small>commits el último año</small></div>
     </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>El mapa</h2>
+      <p>el tamaño del círculo es la suma de estrellas del país</p>
+    </div>
+    <MapaPaises />
   </section>
 
   <section>
