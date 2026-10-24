@@ -25,7 +25,7 @@ const TOKEN =
 
 // Cuántos candidatos traer por país antes de puntuar. El search de GitHub
 // pagina de a 100 y corta en 1000, así que esto es como máximo 10 páginas.
-const POOL = Number(process.env.POOL || 300)
+const POOL = Number(process.env.POOL || 900)
 // Cuántos guardamos por país.
 const KEEP = Number(process.env.KEEP || 100)
 // Filtro de entrada: sin esto el pool se llena de cuentas vacías.
@@ -41,7 +41,7 @@ async function gh(url, tries = 0) {
       Accept: 'application/vnd.github+json',
       'User-Agent': 'top-coders',
     },
-  })
+  }).catch(caidaDeRed)
   if (res.status === 403 || res.status === 429) {
     const reset = Number(res.headers.get('x-ratelimit-reset') || 0) * 1000
     const wait = Math.max(5000, Math.min(reset - Date.now() + 2000, 90_000))
@@ -59,6 +59,10 @@ async function gh(url, tries = 0) {
   return res.json()
 }
 
+// Un corte de conexión (ECONNRESET, DNS) no trae status: se trata como un 5xx
+// y entra a los mismos reintentos, en vez de tumbar la corrida entera.
+const caidaDeRed = (e) => ({ ok: false, status: e.cause?.code || 'red', headers: new Headers(), json: async () => ({}) })
+
 async function graphql(query, tries = 0) {
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
@@ -68,7 +72,7 @@ async function graphql(query, tries = 0) {
       'User-Agent': 'top-coders',
     },
     body: JSON.stringify({ query }),
-  })
+  }).catch(caidaDeRed)
   const json = await res.json().catch(() => ({}))
   const kind = json.errors?.[0]?.type
   // Errores parciales cuentan como fallo: GitHub responde 200 con data a
@@ -95,9 +99,11 @@ const SORTS = ['followers', 'repositories']
 
 async function findLogins(country) {
   const seen = new Map()
+  // Cupo por término: si "Peru" llenaba el cupo entero, "Lima" no se buscaba nunca.
+  const perTerm = Math.ceil(POOL / SORTS.length / country.q.length)
   for (const sort of SORTS) {
-    const target = Math.min(POOL, seen.size + Math.ceil(POOL / SORTS.length))
     for (const term of country.q) {
+      const target = seen.size + perTerm
       for (let page = 1; page <= 3 && seen.size < target; page++) {
         const q = encodeURIComponent(
           `location:"${term}" followers:>${MIN_FOLLOWERS} repos:>${MIN_REPOS} type:user`
@@ -109,7 +115,6 @@ async function findLogins(country) {
         if ((data.items || []).length < 100) break
         await sleep(2200) // search: 30 req/min
       }
-      if (seen.size >= target) break
     }
   }
   return [...seen.keys()].slice(0, POOL)
