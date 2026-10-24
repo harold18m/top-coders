@@ -25,7 +25,7 @@ jobs:
         # GITHUB_TOKEN por defecto.
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-        run: node scripts/fetch.mjs ${{ inputs.countries }}
+        run: node scripts/fetch.mjs ${{ inputs.countries || 'peru' }} # ponytail: solo Perú hasta que el fetch aguante los 5xx de GitHub
       - name: Commitear cambios
         run: |
           git config user.name 'top-coders bot'
